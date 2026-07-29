@@ -2,10 +2,10 @@ import { createBrowserRouter } from "react-router-dom";
 
 import AppLayout from "../layouts/AppLayout";
 
-import Dashboard from "../pages/Dashboard";
-import Sales from "../pages/Sales";
+import RegisterSale from "../pages/RegisterSale";
+import History from "../pages/History";
+import Reports from "../pages/Reports";
 import NotFound from "../pages/NotFound";
-
 
 const router = createBrowserRouter([
   {
@@ -14,11 +14,15 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Dashboard />,
+        element: <RegisterSale />,
       },
       {
-        path: "vendas",
-        element: <Sales />,
+        path: "history",
+        element: <History />,
+      },
+      {
+        path: "reports",
+        element: <Reports />,
       },
     ],
   },
@@ -27,6 +31,5 @@ const router = createBrowserRouter([
     element: <NotFound />,
   },
 ]);
-
 
 export default router;

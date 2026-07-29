@@ -1,34 +1,52 @@
-export default function Header(){
+import { NavLink } from "react-router-dom";
 
-  return(
-    <header className="
-      h-16
-      bg-white
-      border-b
-      border-slate-200
-      flex
-      items-center
-      justify-between
-      px-6
-    ">
+const navigation = [
+  {
+    label: "Registrar Venda",
+    path: "/",
+  },
+  {
+    label: "Histórico",
+    path: "/history",
+  },
+  {
+    label: "Relatórios",
+    path: "/reports",
+  },
+];
 
-      <h2 className="
-        text-lg
-        font-semibold
-        text-slate-700
-      ">
-        Sistema de Controle de Vendas
-      </h2>
+export default function Header() {
+  return (
+    <header className="border-b border-slate-200 bg-white">
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-8">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">
+            Central AutoPeças
+          </h1>
 
+          <p className="text-sm text-slate-500">
+            Sistema de Controle de Vendas
+          </p>
+        </div>
 
-      <span className="
-        text-sm
-        text-slate-500
-      ">
-        Operador
-      </span>
-
+        <nav className="flex items-center gap-8">
+          {navigation.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `text-sm font-medium transition-colors ${
+                  isActive
+                    ? "text-blue-600"
+                    : "text-slate-600 hover:text-slate-900"
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+      </div>
     </header>
   );
-
 }
