@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import PaymentMethod from "../../components/sales/PaymentMethod";
 import SellerSelect from "../../components/sales/SellerSelect";
 import MoneyInput from "../../components/sales/MoneyInput";
 
@@ -25,6 +26,7 @@ const mockSellers = [
 export default function RegisterSale() {
   const [seller, setSeller] = useState("");
   const [amount, setAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
 
   return (
     <section className="mx-auto max-w-3xl">
@@ -52,6 +54,14 @@ export default function RegisterSale() {
             onChange={(event) => setAmount(event.target.value)}
         />
       </div>
+
+      <div className="mt-6">
+        <PaymentMethod
+            value={paymentMethod}
+            onChange={setPaymentMethod}
+        />
+      </div>
+      
     </section>
   );
 }
