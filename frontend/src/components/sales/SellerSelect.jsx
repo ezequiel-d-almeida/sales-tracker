@@ -1,7 +1,7 @@
 export default function SellerSelect({
+  sellers,
   value,
   onChange,
-  sellers = [],
 }) {
   return (
     <div className="space-y-2">
@@ -17,14 +17,15 @@ export default function SellerSelect({
         value={value}
         onChange={onChange}
         className="
+          h-12
           w-full
           rounded-xl
           border
           border-slate-300
           bg-white
           px-4
-          py-3
           text-slate-800
+          shadow-sm
           outline-none
           transition
           focus:border-blue-500

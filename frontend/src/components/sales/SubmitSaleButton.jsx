@@ -7,18 +7,21 @@ export default function SubmitSaleButton({
       type="submit"
       disabled={disabled || isLoading}
       className="
+        h-12
         w-full
         rounded-xl
         bg-blue-600
-        px-6
-        py-4
-        text-base
+        text-sm
         font-semibold
         text-white
-        transition
+        shadow-sm
+        transition-all
+        duration-200
         hover:bg-blue-700
+        hover:shadow-md
         disabled:cursor-not-allowed
         disabled:bg-slate-400
+        disabled:shadow-none
       "
     >
       {isLoading

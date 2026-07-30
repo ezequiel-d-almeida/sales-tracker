@@ -32,7 +32,7 @@ export default function PaymentMethod({
   onChange,
 }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <label className="block text-sm font-medium text-slate-700">
         Forma de pagamento
       </label>
@@ -50,25 +50,26 @@ export default function PaymentMethod({
               onClick={() => onChange(method.id)}
               className={`
                 flex
+                h-12
                 items-center
                 justify-center
                 gap-2
                 rounded-xl
                 border
-                px-4
-                py-4
+                text-sm
                 font-medium
+                shadow-sm
                 transition-all
+                duration-200
 
                 ${
                   selected
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50"
+                    ? "border-blue-600 bg-blue-600 text-white shadow-md"
+                    : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 hover:bg-blue-50"
                 }
               `}
             >
               <Icon size={18} />
-
               {method.label}
             </button>
           );

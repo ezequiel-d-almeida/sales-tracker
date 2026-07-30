@@ -1,46 +1,101 @@
-import { Clock3, CreditCard, User } from "lucide-react";
+import {
+  Clock3,
+  CreditCard,
+  DollarSign,
+  User,
+} from "lucide-react";
 
-export default function LastSaleCard({
-  sale,
-}) {
+export default function LastSaleCard({ sale }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-5 text-lg font-semibold text-slate-800">
-        Última venda registrada
-      </h3>
+    <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+      <h2 className="text-lg font-semibold text-slate-900">
+        Última venda
+      </h2>
+
+      <p className="mt-1 mb-6 text-sm text-slate-500">
+        Informações da venda registrada nesta sessão.
+      </p>
 
       {!sale ? (
-        <p className="text-slate-500">
-          Nenhuma venda registrada nesta sessão.
-        </p>
+        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+          <p className="text-sm text-slate-500">
+            Nenhuma venda registrada.
+          </p>
+        </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
 
           <div className="flex items-center gap-3">
-            <User size={18} />
-            <span>{sale.seller}</span>
+            <User
+              size={18}
+              className="text-blue-600"
+            />
+
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Vendedor
+              </p>
+
+              <p className="font-medium text-slate-800">
+                {sale.seller}
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <CreditCard size={18} />
-            <span>
-              {sale.paymentMethod}
-            </span>
+            <CreditCard
+              size={18}
+              className="text-blue-600"
+            />
+
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Pagamento
+              </p>
+
+              <p className="font-medium text-slate-800">
+                {sale.paymentMethod}
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <Clock3 size={18} />
-            <span>
-              {sale.time}
-            </span>
+            <Clock3
+              size={18}
+              className="text-blue-600"
+            />
+
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Horário
+              </p>
+
+              <p className="font-medium text-slate-800">
+                {sale.time}
+              </p>
+            </div>
           </div>
 
-          <div className="text-3xl font-bold text-blue-600">
-            {sale.amount}
+          <div className="border-t border-slate-200 pt-5">
+
+            <div className="flex items-center gap-2 text-blue-600">
+              <DollarSign size={20} />
+
+              <span className="text-xs uppercase tracking-wide">
+                Valor
+              </span>
+            </div>
+
+            <p className="mt-2 text-3xl font-bold text-slate-900">
+              R$ {sale.amount}
+            </p>
+
           </div>
 
         </div>
       )}
-    </div>
+
+    </aside>
   );
 }

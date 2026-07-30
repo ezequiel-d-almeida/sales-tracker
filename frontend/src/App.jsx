@@ -1,122 +1,108 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+import SellerSelect from "./components/sales/SellerSelect";
+import MoneyInput from "./components/sales/MoneyInput";
+import PaymentMethod from "./components/sales/PaymentMethod";
+import SubmitSaleButton from "./components/sales/SubmitSaleButton";
+import LastSaleCard from "./components/sales/LastSaleCard";
+
+import sellers from "./data/sellers";
+
+export default function App() {
+  const [seller, setSeller] = useState("");
+  const [amount, setAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [lastSale, setLastSale] = useState(null);
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    const sellerName =
+      sellers.find((item) => item.id === Number(seller))?.name || "";
+
+    const sale = {
+      seller: sellerName,
+      amount,
+      paymentMethod,
+      time: new Date().toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+
+    console.log(sale);
+
+    setLastSale(sale);
+
+    setSeller("");
+    setAmount("");
+    setPaymentMethod("");
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+    <main className="min-h-screen px-6 py-12">
+
+      <div className="mx-auto w-full max-w-5xl">
+
+        <header className="mb-10">
+
+          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-blue-600">
+            Central AutoPeças
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
+          <h1 className="mt-2 text-4xl font-bold text-slate-900">
+            Registro de Vendas
+          </h1>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          <p className="mt-2 text-slate-500">
+            Registre rapidamente as vendas realizadas durante o expediente.
+          </p>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        </header>
+
+        <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm"
+          >
+
+            <div className="space-y-6">
+
+              <SellerSelect
+                sellers={sellers}
+                value={seller}
+                onChange={(event) => setSeller(event.target.value)}
+              />
+
+              <MoneyInput
+                value={amount}
+                onChange={(event) => setAmount(event.target.value)}
+              />
+
+              <PaymentMethod
+                value={paymentMethod}
+                onChange={setPaymentMethod}
+              />
+
+              <SubmitSaleButton
+                disabled={
+                  !seller ||
+                  !amount ||
+                  !paymentMethod
+                }
+              />
+
+            </div>
+
+          </form>
+
+          <LastSaleCard sale={lastSale} />
+
+        </div>
+
+      </div>
+
+    </main>
+  );
 }
-
-export default App
