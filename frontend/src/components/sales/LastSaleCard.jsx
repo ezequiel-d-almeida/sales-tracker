@@ -6,6 +6,9 @@ import {
 } from "lucide-react";
 
 export default function LastSaleCard({ sale }) {
+  const sellerName = sale?.seller?.name || sale?.seller;
+  const paymentMethod = sale?.paymentMethodLabel || sale?.paymentMethod;
+
   return (
     <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
@@ -38,7 +41,7 @@ export default function LastSaleCard({ sale }) {
               </p>
 
               <p className="font-medium text-slate-800">
-                {sale.seller}
+                {sellerName}
               </p>
             </div>
           </div>
@@ -55,7 +58,7 @@ export default function LastSaleCard({ sale }) {
               </p>
 
               <p className="font-medium text-slate-800">
-                {sale.paymentMethod}
+                {paymentMethod}
               </p>
             </div>
           </div>

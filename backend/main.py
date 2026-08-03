@@ -15,7 +15,7 @@ DATA_DIR = BASE_DIR / "data"
 SALES_FILE = DATA_DIR / "sales.json"
 
 SELLERS = [
-    {"id": 1, "name": "Cassia"},
+    {"id": 1, "name": "Cássia"},
     {"id": 2, "name": "Evandro"},
     {"id": 3, "name": "Francisco"},
     {"id": 4, "name": "Melqui"},
@@ -24,8 +24,8 @@ SELLERS = [
 PAYMENT_METHODS = {
     "CASH": "Dinheiro",
     "PIX": "Pix",
-    "DEBIT": "Debito",
-    "CREDIT": "Credito",
+    "DEBIT": "Débito",
+    "CREDIT": "Crédito",
 }
 
 

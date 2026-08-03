@@ -2,6 +2,7 @@ export default function SellerSelect({
   sellers,
   value,
   onChange,
+  disabled = false,
 }) {
   return (
     <div className="space-y-2">
@@ -16,6 +17,7 @@ export default function SellerSelect({
         id="seller"
         value={value}
         onChange={onChange}
+        disabled={disabled}
         className="
           h-12
           w-full
@@ -31,6 +33,8 @@ export default function SellerSelect({
           focus:border-blue-500
           focus:ring-4
           focus:ring-blue-100
+          disabled:cursor-not-allowed
+          disabled:bg-slate-100
         "
       >
         <option value="">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import SellerSelect from "./components/sales/SellerSelect";
 import MoneyInput from "./components/sales/MoneyInput";
@@ -6,37 +6,69 @@ import PaymentMethod from "./components/sales/PaymentMethod";
 import SubmitSaleButton from "./components/sales/SubmitSaleButton";
 import LastSaleCard from "./components/sales/LastSaleCard";
 
-import sellers from "./data/sellers";
+import {
+  createSale,
+  getLastSale,
+  getSellers,
+} from "./services/api";
 
 export default function App() {
   const [seller, setSeller] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [sellers, setSellers] = useState([]);
   const [lastSale, setLastSale] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+  const [error, setError] = useState("");
 
-  function handleSubmit(event) {
+  useEffect(() => {
+    async function loadInitialData() {
+      try {
+        setError("");
+
+        const [sellersResponse, lastSaleResponse] = await Promise.all([
+          getSellers(),
+          getLastSale(),
+        ]);
+
+        setSellers(sellersResponse.data);
+        setLastSale(lastSaleResponse.data);
+      } catch (err) {
+        setError("Nao foi possivel conectar com o servidor.");
+        console.error(err);
+      } finally {
+        setIsFetching(false);
+      }
+    }
+
+    loadInitialData();
+  }, []);
+
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    const sellerName =
-      sellers.find((item) => item.id === Number(seller))?.name || "";
+    try {
+      setIsLoading(true);
+      setError("");
 
-    const sale = {
-      seller: sellerName,
-      amount,
-      paymentMethod,
-      time: new Date().toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
+      const response = await createSale({
+        seller_id: Number(seller),
+        amount: Number(amount),
+        payment_method: paymentMethod,
+      });
 
-    console.log(sale);
+      setLastSale(response.data);
 
-    setLastSale(sale);
-
-    setSeller("");
-    setAmount("");
-    setPaymentMethod("");
+      setSeller("");
+      setAmount("");
+      setPaymentMethod("");
+    } catch (err) {
+      setError("Nao foi possivel registrar a venda.");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -73,6 +105,7 @@ export default function App() {
                 sellers={sellers}
                 value={seller}
                 onChange={(event) => setSeller(event.target.value)}
+                disabled={isFetching}
               />
 
               <MoneyInput
@@ -86,12 +119,20 @@ export default function App() {
               />
 
               <SubmitSaleButton
+                isLoading={isLoading}
                 disabled={
+                  isFetching ||
                   !seller ||
                   !amount ||
                   !paymentMethod
                 }
               />
+
+              {error && (
+                <p className="text-sm font-medium text-red-600">
+                  {error}
+                </p>
+              )}
 
             </div>
 
