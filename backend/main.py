@@ -1,24 +1,16 @@
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
-from pathlib import Path
-from typing import Literal
+from typing import Generator, Literal
 
-import json
-
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
+from sqlalchemy.orm import Session
 
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
-SALES_FILE = DATA_DIR / "sales.json"
+from database import SessionLocal
+from models import Sale
+from repositories import SaleRepository, SellerRepository
 
-SELLERS = [
-    {"id": 1, "name": "Cássia"},
-    {"id": 2, "name": "Evandro"},
-    {"id": 3, "name": "Francisco"},
-    {"id": 4, "name": "Melqui"},
-]
 
 PAYMENT_METHODS = {
     "CASH": "Dinheiro",
@@ -39,7 +31,7 @@ class SaleCreate(BaseModel):
         try:
             return value.quantize(Decimal("0.01"))
         except InvalidOperation as exc:
-            raise ValueError("Valor invalido.") from exc
+            raise ValueError("Valor inválido.") from exc
 
 
 app = FastAPI(title="Sales Tracker API")
@@ -56,75 +48,100 @@ app.add_middleware(
 )
 
 
-def ensure_data_file() -> None:
-    DATA_DIR.mkdir(exist_ok=True)
-    if not SALES_FILE.exists():
-        SALES_FILE.write_text("[]", encoding="utf-8")
+def get_db() -> Generator[Session, None, None]:
+    db = SessionLocal()
 
-
-def read_sales() -> list[dict]:
-    ensure_data_file()
     try:
-        return json.loads(SALES_FILE.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return []
+        yield db
+    finally:
+        db.close()
 
 
-def write_sales(sales: list[dict]) -> None:
-    ensure_data_file()
-    SALES_FILE.write_text(
-        json.dumps(sales, ensure_ascii=True, indent=2),
-        encoding="utf-8",
-    )
-
-
-def find_seller(seller_id: int) -> dict | None:
-    return next((seller for seller in SELLERS if seller["id"] == seller_id), None)
+def serialize_sale(sale: Sale) -> dict:
+    return {
+        "id": sale.id,
+        "seller": {
+            "id": sale.seller.id,
+            "name": sale.seller.name,
+        },
+        "amount": f"{sale.amount:.2f}",
+        "paymentMethod": sale.payment_method,
+        "paymentMethodLabel": PAYMENT_METHODS[sale.payment_method],
+        "time": sale.created_at.strftime("%H:%M"),
+        "createdAt": sale.created_at.isoformat(timespec="seconds"),
+    }
 
 
 @app.get("/api/health")
 def health_check() -> dict:
     return {"status": "ok"}
 
-
 @app.get("/api/sellers")
-def list_sellers() -> list[dict]:
-    return SELLERS
+def list_sellers(
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    repository = SellerRepository(db)
+
+    sellers = repository.get_all()
+
+    return [
+        {
+            "id": seller.id,
+            "name": seller.name,
+        }
+        for seller in sellers
+    ]
 
 
 @app.get("/api/sales")
-def list_sales() -> list[dict]:
-    return read_sales()
+def list_sales(
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    repository = SaleRepository(db)
 
+    sales = repository.get_all()
+
+    return [
+        serialize_sale(sale)
+        for sale in sales
+    ]
 
 @app.get("/api/sales/last")
-def get_last_sale() -> dict | None:
-    sales = read_sales()
-    if not sales:
-        return None
-    return sales[-1]
+def get_last_sale(
+    db: Session = Depends(get_db),
+) -> dict | None:
+    repository = SaleRepository(db)
 
+    sale = repository.get_last()
+
+    if sale is None:
+        return None
+
+    return serialize_sale(sale)
 
 @app.post("/api/sales", status_code=201)
-def create_sale(payload: SaleCreate) -> dict:
-    seller = find_seller(payload.seller_id)
+def create_sale(
+    payload: SaleCreate,
+    db: Session = Depends(get_db),
+) -> dict:
+
+    seller_repository = SellerRepository(db)
+    sale_repository = SaleRepository(db)
+
+    seller = seller_repository.get_by_id(payload.seller_id)
+
     if seller is None:
-        raise HTTPException(status_code=404, detail="Vendedor nao encontrado.")
+        raise HTTPException(
+            status_code=404,
+            detail="Vendedor não encontrado.",
+        )
 
-    sales = read_sales()
-    now = datetime.now()
+    sale = Sale(
+        seller_id=payload.seller_id,
+        amount=payload.amount,
+        payment_method=payload.payment_method,
+    )
 
-    sale = {
-        "id": len(sales) + 1,
-        "seller": seller,
-        "amount": f"{payload.amount:.2f}",
-        "paymentMethod": payload.payment_method,
-        "paymentMethodLabel": PAYMENT_METHODS[payload.payment_method],
-        "time": now.strftime("%H:%M"),
-        "createdAt": now.isoformat(timespec="seconds"),
-    }
+    sale = sale_repository.create(sale)
 
-    sales.append(sale)
-    write_sales(sales)
-
-    return sale
+    return serialize_sale(sale)
