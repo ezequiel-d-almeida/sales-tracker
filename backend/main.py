@@ -2,10 +2,14 @@ from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from typing import Generator, Literal
 
+from fastapi import Depends
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session
+
+from dependencies import get_db
 
 from database import SessionLocal
 from models import Sale
