@@ -84,6 +84,7 @@ def health_check() -> dict:
 def list_sellers(
     db: Session = Depends(get_db),
 ) -> list[dict]:
+
     repository = SellerRepository(db)
 
     sellers = repository.get_all()
