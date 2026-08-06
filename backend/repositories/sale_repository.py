@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import joinedload
 
 from models import Sale
-
 
 class SaleRepository:
 
@@ -23,7 +23,7 @@ class SaleRepository:
             .order_by(Sale.created_at.desc())
         )
 
-        return list(self.db.scalars(stmt).unique().all())
+        return list(self.db.scalars(stmt).all())
 
     def get_last(self) -> Sale | None:
         stmt = (

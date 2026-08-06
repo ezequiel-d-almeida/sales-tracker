@@ -1,17 +1,13 @@
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
-from typing import Generator, Literal
+from typing import Literal
 
-from fastapi import Depends
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
-from sqlalchemy.orm import Session
 
 from dependencies import get_db
-
-from database import SessionLocal
 from models import Sale
 from repositories import SaleRepository, SellerRepository
 
@@ -22,7 +18,6 @@ PAYMENT_METHODS = {
     "DEBIT": "Débito",
     "CREDIT": "Crédito",
 }
-
 
 class SaleCreate(BaseModel):
     seller_id: int = Field(gt=0)
@@ -50,16 +45,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 def serialize_sale(sale: Sale) -> dict:
     return {
