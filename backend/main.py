@@ -1,16 +1,15 @@
 from datetime import datetime
-from decimal import Decimal, InvalidOperation
-from typing import Literal
+from decimal import Decimal
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from dependencies import get_db
 from models import Sale
 from repositories import SaleRepository, SellerRepository
 
+from schemas import SaleCreate, SaleResponse, SellerResponse
 
 PAYMENT_METHODS = {
     "CASH": "Dinheiro",
@@ -19,18 +18,7 @@ PAYMENT_METHODS = {
     "CREDIT": "Crédito",
 }
 
-class SaleCreate(BaseModel):
-    seller_id: int = Field(gt=0)
-    amount: Decimal = Field(gt=0)
-    payment_method: Literal["CASH", "PIX", "DEBIT", "CREDIT"]
 
-    @field_validator("amount")
-    @classmethod
-    def limit_amount_precision(cls, value: Decimal) -> Decimal:
-        try:
-            return value.quantize(Decimal("0.01"))
-        except InvalidOperation as exc:
-            raise ValueError("Valor inválido.") from exc
 
 
 app = FastAPI(title="Sales Tracker API")
@@ -65,7 +53,10 @@ def serialize_sale(sale: Sale) -> dict:
 def health_check() -> dict:
     return {"status": "ok"}
 
-@app.get("/api/sellers")
+@app.get(
+        "/api/sellers",
+        response_model=list[SellerResponse],
+)
 def list_sellers(
     db: Session = Depends(get_db),
 ) -> list[dict]:
@@ -83,7 +74,10 @@ def list_sellers(
     ]
 
 
-@app.get("/api/sales")
+@app.get(
+        "/api/sales",
+         response_model=list[SaleResponse],
+)
 def list_sales(
     db: Session = Depends(get_db),
 ) -> list[dict]:
@@ -96,7 +90,10 @@ def list_sales(
         for sale in sales
     ]
 
-@app.get("/api/sales/last")
+@app.get(
+    "/api/sales/last",
+    response_model=SaleResponse | None,
+)
 def get_last_sale(
     db: Session = Depends(get_db),
 ) -> dict | None:
@@ -109,7 +106,11 @@ def get_last_sale(
 
     return serialize_sale(sale)
 
-@app.post("/api/sales", status_code=201)
+@app.post(
+        "/api/sales", 
+        status_code=201,
+        response_model=SaleResponse,
+)
 def create_sale(
     payload: SaleCreate,
     db: Session = Depends(get_db),
