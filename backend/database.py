@@ -9,18 +9,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
 
-load_dotenv()
-
-
-DB_HOST = getenv("DB_HOST")
-DB_PORT = getenv("DB_PORT")
-DB_NAME = getenv("DB_NAME")
-DB_USER = getenv("DB_USER")
-DB_PASSWORD = getenv("DB_PASSWORD")
-
-
 DATABASE_URL = getenv("DATABASE_URL")
 
+if not DATABASE_URL:
+    raise ValueError(
+        "DATABASE_URL não definida no render!\n"
+        "Adicione a variável de ambiente DATABASE_URL no painel do Render.")
 
 engine = create_engine(
     DATABASE_URL,
