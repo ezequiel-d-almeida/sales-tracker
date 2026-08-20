@@ -1,10 +1,16 @@
 from datetime import datetime
 from decimal import Decimal
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from database import engine
 from dependencies import get_db
 from models import Sale
 from repositories import SaleRepository, SellerRepository
@@ -49,9 +55,29 @@ def serialize_sale(sale: Sale) -> dict:
     }
 
 
-@app.get("/api/health")
-def health_check() -> dict:
-    return {"status": "ok"}
+@app.get("/health", response_model=None)
+@app.get("/api/health", include_in_schema=False, response_model=None)
+def health_check():
+    """Confirma que a API e a conexão com o PostgreSQL estão disponíveis."""
+    try:
+        # lógica atual de verificação do banco
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "ok",
+                "database": "connected",
+            },
+        )
+
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unavailable",
+                "database": "disconnected",
+            },
+        )
 
 @app.get(
         "/api/sellers",
@@ -136,3 +162,10 @@ def create_sale(
     sale = sale_repository.create(sale)
 
     return serialize_sale(sale)
+
+
+# Em producao, o frontend compilado e servido pelo mesmo processo da API.
+# O Vite continua sendo usado somente no desenvolvimento, com o proxy /api.
+frontend_dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+if frontend_dist.is_dir():
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")

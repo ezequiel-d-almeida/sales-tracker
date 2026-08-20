@@ -35,7 +35,11 @@ export default function App() {
         setSellers(sellersResponse.data);
         setLastSale(lastSaleResponse.data);
       } catch (err) {
-        setError("Nao foi possivel conectar com o servidor.");
+        if (!err.response || err.response.status === 502 || err.response.status === 503) {
+          setError("Servidor indisponivel. Verifique se o SalesTracker e o PostgreSQL estao iniciados.");
+        } else {
+          setError("Nao foi possivel carregar os dados iniciais.");
+        }
         console.error(err);
       } finally {
         setIsFetching(false);
@@ -64,7 +68,11 @@ export default function App() {
       setAmount("");
       setPaymentMethod("");
     } catch (err) {
-      setError("Nao foi possivel registrar a venda.");
+      if (!err.response || err.response.status === 502 || err.response.status === 503) {
+        setError("Servidor indisponivel. A venda nao foi registrada.");
+      } else {
+        setError("Nao foi possivel registrar a venda.");
+      }
       console.error(err);
     } finally {
       setIsLoading(false);
